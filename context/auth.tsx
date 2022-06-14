@@ -6,7 +6,8 @@ import {
 	useEffect,
 	useState,
 } from 'react';
-import nookies from 'nookies';
+
+import Cookies from 'universal-cookie';
 
 interface IAuthContext {
 	user: User | null;
@@ -20,14 +21,16 @@ export const AuthProvider = ({ children }: { children?: ReactNode }) => {
 	useEffect(() => {
 		const auth = getAuth();
 
+		const cookies = new Cookies();
+
 		const unsub = auth.onIdTokenChanged(async (user) => {
 			setUser(user);
 
 			if (user) {
 				const token = await user.getIdToken();
-				nookies.set(undefined, 'token', token, { path: '/' });
+				cookies.set('token', token, { path: '/' });
 			} else {
-				nookies.set(undefined, 'token', '', { path: '/' });
+				cookies.set('token', '', { path: '/' });
 			}
 		});
 

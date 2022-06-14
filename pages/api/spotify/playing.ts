@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import nookies from 'nookies';
+import Cookies from 'universal-cookie';
 import { firebaseAdmin } from '../../../util/server/firebase';
 import {
 	getSpotifyCurrent,
@@ -18,8 +18,16 @@ const handler = async (
 		| { message: string }
 	>
 ) => {
-	const cookies = nookies.get({ req }, 'token');
-	const token = await firebaseAdmin.auth().verifyIdToken(cookies.token);
+	const cookies = new Cookies(req.headers.cookie);
+	const potentialToken = cookies.get('token');
+	const token = await firebaseAdmin.auth().verifyIdToken(potentialToken);
+
+	if (!token) {
+		// Redirect to home
+		res.status(302).redirect('/');
+		return;
+	}
+
 	const currentlyPlaying = await getSpotifyCurrent(token.uid);
 
 	if (!currentlyPlaying || !currentlyPlaying.item) {

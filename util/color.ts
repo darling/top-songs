@@ -1,8 +1,41 @@
-// Generate a color based on a sinlge float from 0 to 1.
+export const generatePrimaryColor = (value: number) => {
+	const h = hueFromNumber(value);
+	const s = 0.5;
+	const l = 0.5;
+	const rgb = hslToRgb(h, s, l);
+	const hex = rgb.map((x) => x.toString(16).padStart(2, '0')).join('');
+	return `#${hex}`;
+};
+
+export const generateSecondaryColor = (value: number) => {
+	const h = hueFromNumber(value);
+	const s = 0.8;
+	const l = 0.9;
+	const rgb = hslToRgb(h, s, l);
+	const hex = rgb.map((x) => x.toString(16).padStart(2, '0')).join('');
+	return `#${hex}`;
+};
+
+/**
+ * Generate a hue from a given value.
+ * @param value value between 0 and 1
+ * @returns
+ */
+export const hueFromNumber = (value: number) => {
+	const hue = Math.abs(value * 400) % 360;
+
+	return hue / 360;
+};
+
+/**
+ * Generate a color based on a given value between 0 and 1.
+ * @param value value between 0 and 1
+ * @returns color in hex format
+ */
 export const generateColor = (value: number) => {
 	// Rather than doing 360 * value, we do it this way to avoid wrapping around to red again
 	// Its more like a red to blue gradient
-	const hue = Math.abs((value + 0.3) * 360);
+	const hue = hueFromNumber(value);
 
 	// hsl formula
 	const h = hue / 360;

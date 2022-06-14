@@ -5,14 +5,17 @@ import type { AppProps } from 'next/app';
 import '../util/client/firebase';
 import { AuthProvider } from '../context/auth';
 import { AnimatePresence, motion } from 'framer-motion';
+import { ThemeProvider } from '../context/theme';
 
 function MyApp({ Component, pageProps, router }: AppProps) {
 	return (
-		<AuthProvider>
-			<div className="bg-amber-50">
-				<Component {...pageProps} />
-			</div>
-		</AuthProvider>
+		<ThemeProvider>
+			<AuthProvider>
+				<div className="bg-amber-50 h-full">
+					<Component {...pageProps} />
+				</div>
+			</AuthProvider>
+		</ThemeProvider>
 	);
 }
 

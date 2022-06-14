@@ -1,12 +1,11 @@
 import { AnimatePresence, motion, Variants } from 'framer-motion';
 import Link from 'next/link';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import { mutate } from 'swr';
+import { useTheme } from '../../context/theme';
+import { useNowPlaying } from '../../util/client/swr';
 import { generateColor } from '../../util/color';
-
-interface INowPlayingProps {
-	nowPlaying: SpotifyApi.TrackObjectFull;
-	currentFeatures: SpotifyApi.AudioFeaturesResponse;
-}
+import { Disk } from '../Music/Disk';
 
 const letterAnimationStates: Variants = {
 	hidden: {
@@ -32,53 +31,38 @@ const containerAnimationStates: Variants = {
 	},
 };
 
-const Disk: FC<{ imgSrc: string; color: string }> = ({ imgSrc, color }) => {
-	return (
-		<AnimatePresence exitBeforeEnter>
-			<motion.div
-				variants={letterAnimationStates}
-				initial="hidden"
-				animate="visible"
-				exit="exit"
-				key={imgSrc}
-				className="relative w-full aspect-square rounded-full overflow-hidden"
-				style={{ backgroundColor: color }}
-			>
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 aspect-square overflow-hidden rounded-full bg-black z-10"></div>
-				<div className="absolute w-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 aspect-square overflow-hidden rounded-full opacity-40">
-					<div
-						className="h-full w-full"
-						style={{
-							animation: 'spin 49s linear infinite',
-						}}
-					>
-						<img className="opacity-50" src={imgSrc} />
-					</div>
-				</div>
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-1/3 w-1/3 aspect-square overflow-hidden rounded-full">
-					<div
-						className="h-full w-full"
-						style={{
-							animation: 'spin 8.2s linear infinite',
-						}}
-					>
-						<img src={imgSrc} />
-					</div>
-				</div>
-			</motion.div>
-		</AnimatePresence>
-	);
-};
+export const ProfileNowPlaying: FC = () => {
+	const { response, isError, isLoading } = useNowPlaying();
+	const { primary, setValue } = useTheme();
 
-export const ProfileNowPlaying: FC<INowPlayingProps> = ({
-	nowPlaying,
-	currentFeatures,
-}) => {
-	const [counter, setCounter] = useState(0);
+	useEffect(() => {
+		if (!response) {
+			mutate('/api/spotify/playing');
+		}
 
-	const handleClick = () => {
-		setCounter(counter + 1);
-	};
+		if (response?.trackFeatures) {
+			setValue(response.trackFeatures.energy);
+		}
+	}, [response]);
+
+	let nowPlaying = response?.currentlyPlaying?.item;
+	let currentFeatures = response?.trackFeatures;
+
+	if (isError) {
+		return (
+			<div>
+				<div>{JSON.stringify(isError)}</div>
+			</div>
+		);
+	}
+
+	if (isLoading) {
+		return <div>Loading</div>;
+	}
+
+	if (nowPlaying?.type !== 'track' || !nowPlaying || !currentFeatures) {
+		return <div>You are not currently listening to a song</div>;
+	}
 
 	const artists = nowPlaying.artists.map((a) => a.name).join(', ');
 
@@ -87,16 +71,10 @@ export const ProfileNowPlaying: FC<INowPlayingProps> = ({
 	return (
 		<div className="relative py-8">
 			<div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/3 md:w-1/2 w-3/4 lg:w-1/4">
-				<Disk
-					imgSrc={nowPlaying.album.images[0].url}
-					color={generateColor(currentFeatures.energy)}
-				/>
+				<Disk imgSrc={nowPlaying.album.images[0].url} color={primary} />
 			</div>
 			<div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/3 md:w-1/2 w-3/4 lg:w-1/4 hidden lg:block">
-				<Disk
-					imgSrc={nowPlaying.album.images[0].url}
-					color={generateColor(currentFeatures.energy)}
-				/>
+				<Disk imgSrc={nowPlaying.album.images[0].url} color={primary} />
 			</div>
 			{/* <div onClick={() => handleClick()}>Debug Counter Increment</div> */}
 			<AnimatePresence exitBeforeEnter>
@@ -105,7 +83,7 @@ export const ProfileNowPlaying: FC<INowPlayingProps> = ({
 					initial="hidden"
 					animate="visible"
 					exit="hidden"
-					key={nowPlaying.id + counter}
+					key={nowPlaying.id}
 				>
 					<div className="max-w-7xl px-2 w-full mx-auto">
 						<div className="lg:text-center text-left flex flex-col gap-4">
@@ -133,7 +111,7 @@ export const ProfileNowPlaying: FC<INowPlayingProps> = ({
 															currentFeatures.time_signature
 														}ms cubic-bezier(0, 0, 0.2, 1) infinite`,
 													}}
-													className="absolute top-2 -right-2 h-4 w-4 rounded-full bg-red-500"
+													className="absolute top-2 -right-2 h-4 w-4 rounded-full bg-red-500 animate-ping"
 												/>
 											</a>
 										</Link>
@@ -150,6 +128,11 @@ export const ProfileNowPlaying: FC<INowPlayingProps> = ({
 							>
 								{artists}
 							</motion.h3>
+							<pre className="text-left">
+								<code>
+									{JSON.stringify(currentFeatures, null, 2)}
+								</code>
+							</pre>
 						</div>
 					</div>
 				</motion.div>

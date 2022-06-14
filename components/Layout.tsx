@@ -3,7 +3,9 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { FC } from 'react';
 import { useAuth } from '../context/auth';
+import { Footer } from './Layout/Footer';
 import { Section } from './Layout/Section';
+import { LayoutSidebar } from './Layout/Sidebar';
 
 export const Layout: FC<{ children: any }> = ({ children }) => {
 	const { user } = useAuth();
@@ -19,20 +21,13 @@ export const Layout: FC<{ children: any }> = ({ children }) => {
 				<link rel="icon" href="/favicon.ico" />
 			</Head>
 			<motion.main>
-				<div className="min-h-screen bg-amber-50 text-zinc-800 overflow-hidden">
-					<Section>
-						<div className="py-4">
-							Logo -{' '}
-							<Link href={'/profile'}>
-								<a>{user?.displayName || 'Sign In'}</a>
-							</Link>{' '}
-							- <Link href={'/'}>Home</Link>
+				<div className="h-full bg-amber-50 text-zinc-800 overflow-hidden">
+					<LayoutSidebar>
+						<div className="overflow-hidden whitespace-pre-wrap min-h-screen">
+							{children}
 						</div>
-					</Section>
-
-					<div className="overflow-hidden whitespace-pre-wrap pt-4">
-						{children}
-					</div>
+						<Footer />
+					</LayoutSidebar>
 				</div>
 			</motion.main>
 		</>

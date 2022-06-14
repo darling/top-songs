@@ -1,14 +1,14 @@
-import { floor, keys, map, padStart } from 'lodash';
+import { floor, map } from 'lodash';
 import { GetServerSideProps } from 'next';
 import Link from 'next/link';
+import { FC } from 'react';
+import Cookies from 'universal-cookie';
+
 import { Layout } from '../components/Layout';
 import { Section, SectionContainer } from '../components/Layout/Section';
 import { useAuth } from '../context/auth';
-import { useSpotify } from '../util/client/swr';
 import { firebaseAdmin } from '../util/server/firebase';
-import { getSpotifyProfile, getSpotifyTopTracks } from '../util/server/spotify';
-import nookies from 'nookies';
-import { FC } from 'react';
+import { getSpotifyTopTracks } from '../util/server/spotify';
 
 interface ITopTracksProps {
 	topTracks: SpotifyApi.UsersTopTracksResponse;
@@ -86,8 +86,10 @@ const Top: FC<ITopTracksProps> = ({ topTracks }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-	const cookies = nookies.get(context);
-	const token = await firebaseAdmin.auth().verifyIdToken(cookies.token);
+	const cookies = new Cookies(context.req.headers.cookie);
+	const potentialToken = cookies.get('token');
+	const token = await firebaseAdmin.auth().verifyIdToken(potentialToken);
+
 	const topTracks = await getSpotifyTopTracks(token.uid, 50);
 
 	return {

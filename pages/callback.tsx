@@ -1,8 +1,10 @@
 import axios from 'axios';
 import { getAuth, signInWithCustomToken, UserCredential } from 'firebase/auth';
 import { GetServerSideProps, NextPage } from 'next';
+import { useRouter } from 'next/router';
 import qs from 'qs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../context/auth';
 import { firebaseApp } from '../util/client/firebase';
 import { firebaseAdmin } from '../util/server/firebase';
 
@@ -13,19 +15,22 @@ interface ICallbackProps {
 
 const Callback: NextPage<ICallbackProps> = ({ jwt, name }) => {
 	const [user, setUser] = useState<UserCredential | undefined>(undefined);
+	const auth = useAuth();
+	const router = useRouter();
 
 	if (jwt) {
 		const auth = getAuth();
 
 		signInWithCustomToken(auth, jwt).then((user) => {
 			setUser(user);
-
-			if (user.operationType == 'signIn') {
-				// Redirect to home page
-				window.location.href = '/';
-			}
 		});
 	}
+
+	useEffect(() => {
+		if (auth.user != null) {
+			router.push('/');
+		}
+	}, [router, auth]);
 
 	return (
 		<div>

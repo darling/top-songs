@@ -5,7 +5,7 @@ module.exports = {
 	],
 	theme: {
 		fontFamily: {
-			sans: ['Antonio', 'sans-serif'],
+			sans: ['Poppins', 'sans-serif'],
 		},
 	},
 	plugins: [],

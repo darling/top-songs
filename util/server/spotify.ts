@@ -95,7 +95,7 @@ export const getSpotifyProfile = async (uid: string) => {
 	const access_token = await getSpotifyToken(uid);
 
 	// Get Spotify Profile
-	const apiProfileResponse = await axios.get<SpotifyApi.UserProfileResponse>(
+	const response = await axios.get<SpotifyApi.UserProfileResponse>(
 		'https://api.spotify.com/v1/me',
 		{
 			headers: {
@@ -106,13 +106,13 @@ export const getSpotifyProfile = async (uid: string) => {
 
 	// Check for 200
 
-	if (apiProfileResponse.status !== 200) {
+	if (response.status !== 200) {
 		throw new Error('Error getting Spotify profile');
 	}
 
 	// Return profile
 
-	return apiProfileResponse.data;
+	return response.data;
 };
 
 export const getSpotifyTrack = async (uid: string, track: string) => {
@@ -120,7 +120,7 @@ export const getSpotifyTrack = async (uid: string, track: string) => {
 	const access_token = await getSpotifyToken(uid);
 
 	// Get Spotify Track
-	const apiTrackResponse = await axios.get<SpotifyApi.TrackObjectFull>(
+	const response = await axios.get<SpotifyApi.TrackObjectFull>(
 		`https://api.spotify.com/v1/tracks/${track}`,
 		{
 			headers: {
@@ -131,13 +131,13 @@ export const getSpotifyTrack = async (uid: string, track: string) => {
 
 	// Check for 200
 
-	if (apiTrackResponse.status !== 200) {
+	if (response.status !== 200) {
 		throw new Error('Error getting Spotify track');
 	}
 
 	// Return track
 
-	return apiTrackResponse.data;
+	return response.data;
 };
 
 export const getSpotifyTopTracks = async (uid: string, limit: number) => {
@@ -145,28 +145,27 @@ export const getSpotifyTopTracks = async (uid: string, limit: number) => {
 	const access_token = await getSpotifyToken(uid);
 
 	// Get Spotify Top Tracks
-	const apiTopTracksResponse =
-		await axios.get<SpotifyApi.UsersTopTracksResponse>(
-			'https://api.spotify.com/v1/me/top/tracks',
-			{
-				headers: {
-					Authorization: `Bearer ${access_token}`,
-				},
-				params: {
-					limit,
-				},
-			}
-		);
+	const response = await axios.get<SpotifyApi.UsersTopTracksResponse>(
+		'https://api.spotify.com/v1/me/top/tracks',
+		{
+			headers: {
+				Authorization: `Bearer ${access_token}`,
+			},
+			params: {
+				limit,
+			},
+		}
+	);
 
 	// Check for 200
 
-	if (apiTopTracksResponse.status !== 200) {
+	if (response.status !== 200) {
 		throw new Error('Error getting Spotify top tracks');
 	}
 
 	// Return top tracks
 
-	return apiTopTracksResponse.data;
+	return response.data;
 };
 
 export const getSpotifyCurrent = async (uid: string) => {
@@ -174,25 +173,24 @@ export const getSpotifyCurrent = async (uid: string) => {
 	const access_token = await getSpotifyToken(uid);
 
 	// Get Spotify Top Tracks
-	const apiTopTracksResponse =
-		await axios.get<SpotifyApi.CurrentPlaybackResponse>(
-			'https://api.spotify.com/v1/me/player/currently-playing',
-			{
-				headers: {
-					Authorization: `Bearer ${access_token}`,
-				},
-			}
-		);
+	const response = await axios.get<SpotifyApi.CurrentPlaybackResponse>(
+		'https://api.spotify.com/v1/me/player/currently-playing',
+		{
+			headers: {
+				Authorization: `Bearer ${access_token}`,
+			},
+		}
+	);
 
 	// Check for 200
 
-	if (apiTopTracksResponse.status !== 200) {
+	if (response.status !== 200) {
 		throw new Error('Error getting Spotify currently playing');
 	}
 
 	// Return top tracks
 
-	return apiTopTracksResponse.data;
+	return response.data;
 };
 
 export const getSpotifyUserTracks = async (uid: string, limit: number) => {
@@ -200,28 +198,27 @@ export const getSpotifyUserTracks = async (uid: string, limit: number) => {
 	const access_token = await getSpotifyToken(uid);
 
 	// Get Spotify Top Tracks
-	const apiTopTracksResponse =
-		await axios.get<SpotifyApi.UsersSavedTracksResponse>(
-			'https://api.spotify.com/v1/me/tracks',
-			{
-				headers: {
-					Authorization: `Bearer ${access_token}`,
-				},
-				params: {
-					limit,
-				},
-			}
-		);
+	const response = await axios.get<SpotifyApi.UsersSavedTracksResponse>(
+		'https://api.spotify.com/v1/me/tracks',
+		{
+			headers: {
+				Authorization: `Bearer ${access_token}`,
+			},
+			params: {
+				limit,
+			},
+		}
+	);
 
 	// Check for 200
 
-	if (apiTopTracksResponse.status !== 200) {
+	if (response.status !== 200) {
 		throw new Error('Error getting Spotify user tracks');
 	}
 
 	// Return top tracks
 
-	return apiTopTracksResponse.data;
+	return response.data;
 };
 
 export const getSpotifyTrackFeatures = async (uid: string, track: string) => {
@@ -229,23 +226,107 @@ export const getSpotifyTrackFeatures = async (uid: string, track: string) => {
 	const access_token = await getSpotifyToken(uid);
 
 	// Get Spotify Top Tracks
-	const apiTopTracksResponse =
-		await axios.get<SpotifyApi.AudioFeaturesResponse>(
-			'https://api.spotify.com/v1/audio-features/' + track,
+	const response = await axios.get<SpotifyApi.AudioFeaturesResponse>(
+		'https://api.spotify.com/v1/audio-features/' + track,
+		{
+			headers: {
+				Authorization: `Bearer ${access_token}`,
+			},
+		}
+	);
+
+	// Check for 200
+
+	if (response.status !== 200) {
+		throw new Error('Error getting Spotify user tracks');
+	}
+
+	// Return top tracks
+
+	return response.data;
+};
+
+export const getSpotifyAlbum = async (uid: string, album: string) => {
+	// Get Spotify Token
+	const access_token = await getSpotifyToken(uid);
+
+	// Get Spotify Top Tracks
+	const response = await axios.get<SpotifyApi.AlbumObjectFull>(
+		'https://api.spotify.com/v1/albums/' + album,
+		{
+			headers: {
+				Authorization: `Bearer ${access_token}`,
+			},
+		}
+	);
+
+	// Check for 200
+
+	if (response.status !== 200) {
+		throw new Error('Error getting Spotify album');
+	}
+
+	// Return top tracks
+
+	return response.data;
+};
+
+export const getSpotifyRecommendations = async (
+	uid: string,
+	reccomendations: SpotifyApi.RecommendationsOptionsObject = {
+		limit: 50,
+	}
+) => {
+	// Get Spotify Token
+	const access_token = await getSpotifyToken(uid);
+
+	// Get Spotify Top Tracks
+	const response =
+		await axios.get<SpotifyApi.RecommendationsFromSeedsResponse>(
+			'https://api.spotify.com/v1/recommendations',
 			{
 				headers: {
 					Authorization: `Bearer ${access_token}`,
+				},
+				params: {
+					...reccomendations,
 				},
 			}
 		);
 
 	// Check for 200
 
-	if (apiTopTracksResponse.status !== 200) {
-		throw new Error('Error getting Spotify user tracks');
+	if (response.status !== 200) {
+		throw new Error('Error getting Spotify reccomendations');
 	}
 
 	// Return top tracks
 
-	return apiTopTracksResponse.data;
+	return response.data;
+};
+
+export const searchSpotify = async (uid: string, query: string) => {
+	// Get Spotify Token
+	const access_token = await getSpotifyToken(uid);
+
+	const response = await axios.get<SpotifyApi.SearchResponse>(
+		'https://api.spotify.com/v1/search',
+		{
+			headers: {
+				Authorization: `Bearer ${access_token}`,
+			},
+			params: {
+				q: query,
+				type: 'track',
+			},
+		}
+	);
+
+	// Check for 200
+
+	if (response.status !== 200) {
+		throw new Error('Error getting Spotify search');
+	}
+
+	return response.data;
 };
